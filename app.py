@@ -1,6 +1,13 @@
 import streamlit as st
 import scipy.stats
 import time
+import pandas as pd
+
+if 'experiment_no' not in st.session_state:
+    st.session_state ['experiment_no'] = 0
+
+if 'df_experiment_results' not in st.session_state:
+    st.session_state ['df_experiment_results'] = pd.DataFrame(columns = ['no', 'iteraciones', 'media']) 
 
 st.header('Lanzar una moneda')
 
@@ -27,6 +34,16 @@ start_button = st.button('Ejecutar')
 
 if start_button:
     st.write(f'Experimento con {number_of_trails} intentos en curso.')
+    st.session_state ['experiment_no'] += 1
     mean = toss_coin(number_of_trails)
+    st.session_state['df_experiment_results'] = pd.concat([
+        st.session_state['df_experiment_results'],
+        pd.DataFrame(data = [[st.session_state['experiment_no'], 
+                              number_of_trails, 
+                              mean]], 
+                    columns = ['no', 'iteraciones', 'media'])
+        ], 
+        axis = 0)
+    st.session_state['df_experiment_results'] = st.session_state['df_experiment_results'].reset_index(drop = True)
 
-st.write('Esta aplicación aún no es ficional. En construcción')
+st.write(st.session_state['df_experiment_results'])
